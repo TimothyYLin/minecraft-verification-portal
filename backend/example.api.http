@@ -1,0 +1,39 @@
+### Register User
+POST http://localhost:3000/api/register
+Content-Type: application/json
+
+{
+    "email": "someEmail@gmail.com",
+    "password": "supersecurepassword"
+}
+
+### Resend Verification Email
+POST http://localhost:3000/api/resend-verification
+Content-Type: application/json
+
+{
+    "email": "someEmail@gmail.com",
+}
+
+### Log In and Capture Token
+# @name loginUser
+POST http://localhost:3000/api/login
+Content-Type: application/json
+
+{
+    "email": "someEmail@gmail.com",
+    "password": "supersecurepassword"
+}
+
+### This separator is important. The variable is defined after loginUser response.
+@jwtToken = {{loginUser.response.body.token}}
+
+
+### Link Minecraft Username
+POST http://localhost:3000/api/mc-username
+Content-Type: application/json
+Authorization: Bearer {{jwtToken}}
+
+{
+    "mc_username": "MinecraftUsername"
+}

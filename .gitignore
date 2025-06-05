@@ -1,0 +1,27 @@
+### Backend gitignore (Node)
+backend/.git_old_webapp_history/
+
+# Node modules
+backend/node_modules/
+
+# Environment variables
+backend/.env
+
+# SQLite database files
+backend/*.sqlite
+backend/*.sqlite3
+backend/database.sqlite
+backend/*.db
+
+# API Testing
+backend/api.http
+
+
+### Frontend gitignore (Vite/React)
+frontend/node_modules
+frontend/.env
+frontend/dist/
+frotend/.DS_STORE
+
+### IDE specific
+.vscode/
