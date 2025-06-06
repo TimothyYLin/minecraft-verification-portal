@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { registerUser } from '../services/apiService';
-
+import { registerUser, resendVerificationEmail } from '../services/apiService';
 import styles from './RegisterPage.module.css';
+import ResendIcon from '../components/common/ResendIcon';
 
 function RegisterPage(){
     const [email, setEmail] = useState('');
@@ -10,6 +10,22 @@ function RegisterPage(){
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
     const [isApiError, setIsApiError] = useState(false);
+    const [showResend, setShowResend] = useState(false);
+
+    const handleResend = async () => {
+        setError('');
+        setIsApiError(false);
+        setShowResend(false);
+        setMessage('Sending a new link...');
+        try{
+            const data = await resendVerificationEmail(email);
+            setMessage(data.message);
+        }catch(err){
+            setMessage('');
+            setError(err.message || 'Failed to resend email.');
+            setIsApiError(true);
+        }
+    }
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -38,10 +54,12 @@ function RegisterPage(){
         }catch(err){
             setError(err.message || 'Registration failed. Please try again.');
             setIsApiError(true);
+
+            if(err.code === 'ACTIVE_LINK_EXISTS'){
+                setShowResend(true);
+            }
         }
     };
-
-    console.log('Component is rendering. Current error state is:', error);
 
     return (
         <div className={styles.container}>
@@ -88,6 +106,12 @@ function RegisterPage(){
                 Register
                 </button>
             </form>
+            {showResend && (
+                <button onClick={handleResend} className={styles.resendButton}>
+                    <ResendIcon />
+                    Resend verification email
+                </button>
+            )}
             <div className={styles.messageContainer}>
                 {message && (
                     <div className={styles.successMessage}>{message}</div>

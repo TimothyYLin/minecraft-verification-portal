@@ -13,7 +13,7 @@ async function handleResponse(response){
         try{
             errorData = await response.json();
         }catch(e){
-
+            // Fall through catching invalid JSON
         }
 
         const errorMessage = (errorData && errorData.error) || (errorData && errorData.message) || `HTTP error! status: ${response.status}`;
@@ -51,7 +51,7 @@ function handleFetchError(error){
 
 
 /**
- * 
+ * Requests to register the user
  * @param {string} email User's email
  * @param {string} password User's password
  * @returns {Promise<object>} JSON response from server
@@ -70,6 +70,26 @@ export async function registerUser(email, password){
         return handleResponse(response);
     }catch(error){
         console.error('Error during registration:', error);
+        handleFetchError(error);
+    }
+}
+
+/**
+ * Requests to resend the verification email
+ * @param {string} email User's email
+ * @returns {Promise<object>} The JSON response from the server
+ */
+export async function resendVerificationEmail(email){
+    try{
+        const response = await fetch(`${API_BASE_URL}/resend-verification`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email }),
+        });
+        return handleResponse(response);
+    }catch(error){
         handleFetchError(error);
     }
 }
