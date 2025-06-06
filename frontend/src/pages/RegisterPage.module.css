@@ -1,0 +1,88 @@
+.container {
+  max-width: 400px;
+  margin: 40px auto;
+  padding: 20px;
+  border: 1px solid #444;
+  border-radius: 8px;
+  background-color: #2c2c2c;
+}
+
+.title {
+  text-align: center;
+  font-family: 'Montserrat', sans-serif;
+  color: rgba(255, 255, 255, 0.90);
+  margin-bottom: 24px; /* Added more space below title */
+}
+
+.formGroup {
+  margin-bottom: 15px;
+}
+
+.label {
+  display: block;
+  margin-bottom: 5px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.input {
+  width: 100%; /* Let box-sizing handle padding */
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #555;
+  background-color: #333;
+  color: rgba(255, 255, 255, 0.87);
+  font-size: 1rem;
+}
+
+.button {
+  width: 100%; /* Make button full width of the form */
+  padding: 12px 20px; /* Slightly taller button */
+  border: none;
+  border-radius: 6px;
+  background-color: #1976D2;
+  color: white;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.button:hover { /* Now we can use pseudo-selectors like :hover! */
+  background-color: #1565C0;
+}
+
+/* Container for messages below the button */
+.messageContainer {
+  margin-top: 15px;
+  min-height: 24px;
+  text-align: left; /* Default to left alignment */
+}
+
+.successMessage {
+  background-color: rgba(76, 175, 80, 0.1);
+  color: #66bb6a;
+  border: 1px solid #388e3c;
+  padding: 10px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  text-align: center; /* Center success message text */
+}
+
+.errorText {
+  color: #ef5350;
+  font-size: 0.9rem;
+  margin: 0;
+  padding-top: 8px; /* Add some space above the error text */
+}
+
+.apiErrorBox {
+  background-color: rgba(211, 47, 47, 0.15); /* Slightly more prominent red background */
+  color: #ef9a9a; /* Lighter red text for better readability */
+  border: 1px solid #d32f2f;
+  padding: 12px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  text-align: center;
+}

@@ -1,0 +1,143 @@
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* --- Header / Navbar --- */
+header {
+  background-color: #1e1e1e;
+  color: rgba(255, 255, 255, 0.87);
+  padding: 0 24px;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.25);
+  z-index: 1000;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  min-height: 64px;
+}
+
+header nav {
+  width: 100%;
+}
+
+header nav ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px; /* Adjust gap as needed */
+}
+
+header nav ul li {
+  margin: 0;
+}
+
+/* REVISED STYLES FOR NAVIGATION LINKS/BUTTONS */
+header nav ul li a,
+header nav ul li a:link,
+header nav ul li a:visited {
+  display: inline-block;
+  background-color: transparent;
+  color: rgba(255, 255, 255, 0.75);
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+  font-size: 0.875rem;
+  padding: 10px 18px;
+  border-radius: 6px;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.9px;
+  border: 1px solid transparent;
+  box-shadow: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+
+header nav ul li a:hover,
+header nav ul li a:focus {
+  background-color: rgba(255, 255, 255, 0.08); /* Subtle white overlay for hover background */
+  color: #ffffff;                             /* Brighten text on hover */
+  /* Optional: If you want a border to appear on hover for more definition: */
+  /* border-color: rgba(255, 255, 255, 0.2); */
+  outline: none;
+}
+
+header nav ul li a:active {
+  background-color: rgba(255, 255, 255, 0.12); /* Slightly more intense for click */
+}
+
+/* --- Main Content Area --- */
+main {
+  flex-grow: 1;
+  padding: 32px;
+  width: 100%;
+  background-color: #242424; /* Dark surface for main content, can be same as header or different */
+}
+
+/* --- Footer --- */
+footer {
+  text-align: center;
+  padding: 24px;
+  border-top: 1px solid #333333;
+  background-color: #1e1e1e;
+  color: rgba(255, 255, 255, 0.6);
+  width: 100%;
+  margin-top: auto;
+}
+
+footer p {
+  color: inherit;
+  margin: 0;
+  font-size: 0.9em;
+}
+
+main h1,
+main h2,
+main h3,
+main h4,
+main h5,
+main h6 {
+  font-family: 'Montserrat', sans-serif; /* Using Montserrat for headings */
+  color: rgba(255, 255, 255, 0.90);     /* Brighter white for headings to make them pop */
+  font-weight: 500;                     /* Medium weight, can be adjusted */
+  margin-top: 1.5em;                    /* Space above headings */
+  margin-bottom: 0.75em;                /* Space below headings */
+}
+
+main h1 {
+  font-size: 2.2rem; /* Example size */
+  font-weight: 700; /* Bolder for main page titles */
+}
+
+main h2 {
+  font-size: 1.8rem; /* Example size */
+}
+
+main h3 {
+  font-size: 1.5rem; /* Example size */
+}
+
+main p {
+  font-size: 1rem; /* Standard paragraph size (around 16px) */
+  /* It will inherit color: rgba(255, 255, 255, 0.75); from the body, which is good */
+  margin-bottom: 1.25em; /* Space between paragraphs */
+}
+
+/* Styling for links within the main content area (not the nav links) */
+main a,
+main a:link,
+main a:visited {
+  color: #64b5f6; /* A Material Design light blue, good for links on dark backgrounds */
+  text-decoration: none; /* Remove underline by default */
+  transition: color 0.2s ease-in-out, text-decoration 0.2s ease-in-out;
+}
+
+main a:hover,
+main a:focus {
+  color: #90caf9; /* Lighter blue on hover/focus */
+  text-decoration: underline; /* Add underline on hover/focus for clarity */
+  outline: none;
+}
