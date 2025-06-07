@@ -11,7 +11,8 @@
   text-align: center;
   font-family: 'Montserrat', sans-serif;
   color: rgba(255, 255, 255, 0.90);
-  margin-bottom: 24px; /* Added more space below title */
+  margin-top: 24px;
+  margin-bottom: 24px;
 }
 
 .formGroup {
@@ -25,7 +26,7 @@
 }
 
 .input {
-  width: 100%; /* Let box-sizing handle padding */
+  width: 100%;
   padding: 10px;
   border-radius: 4px;
   border: 1px solid #555;
@@ -51,42 +52,8 @@
   margin-bottom: 0;;
 }
 
-.button:hover { /* Now we can use pseudo-selectors like :hover! */
+.button:hover {
   background-color: #1565C0;
-}
-
-/* Container for messages below the button */
-.messageContainer {
-  margin-top: 15px;
-  min-height: 24px;
-  text-align: left; /* Default to left alignment */
-}
-
-.successMessage {
-  background-color: rgba(76, 175, 80, 0.1);
-  color: #66bb6a;
-  border: 1px solid #388e3c;
-  padding: 10px;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  text-align: center; /* Center success message text */
-}
-
-.errorText {
-  color: #ef5350;
-  font-size: 0.9rem;
-  margin: 0;
-  padding-top: 8px; /* Add some space above the error text */
-}
-
-.apiErrorBox {
-  background-color: rgba(211, 47, 47, 0.15); /* Slightly more prominent red background */
-  color: #ef9a9a; /* Lighter red text for better readability */
-  border: 1px solid #d32f2f;
-  padding: 12px;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  text-align: center;
 }
 
 .resendButton {
@@ -107,4 +74,71 @@
 .resendButton:hover {
   background-color: rgba(100, 181, 246, 0.1); /* Light blue hover */
   border-color: #64b5f6;
+}
+
+.messageContainer {
+  margin-top: 15px;
+  min-height: 24px;
+  text-align: left;
+}
+
+.successMessage {
+  background-color: rgba(76, 175, 80, 0.1);
+  color: #66bb6a;
+  border: 1px solid #388e3c;
+  padding: 10px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  text-align: center; /* Center success message text */
+}
+
+.errorText {
+  color: #ef5350;
+  font-size: 0.9rem;
+  margin: 0;
+  padding-top: 8px; /* Add some space above the error text */
+}
+
+.apiErrorBox {
+  background-color: rgba(211, 47, 47, 0.15);
+  color: #ef9a9a;
+  border: 1px solid #d32f2f;
+  padding: 12px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.validationErrorBox {
+  background-color: rgba(239, 83, 80, 0.05);
+  border: 1px solid rgba(211, 47, 47, 0.4);
+  border-radius: 4px;
+  padding: 10px 15px;
+  font-size: 0.9rem;
+  color: #ef9a9a;
+}
+
+.singleErrorHeading{
+  margin: 0 0 0 0;
+  padding: 0;
+}
+
+.listHeading {
+  font-weight: 500;
+  margin: 0 0 8px 0;
+  padding: 0;
+}
+
+.validationErrorList {
+  list-style-position: inside;
+  margin: 0;
+  padding: 0;
+}
+
+.validationErrorList li {
+  margin-bottom: 5px;
+}
+
+.validationErrorList li:last-child {
+  margin-bottom: 0;
 }
