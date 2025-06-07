@@ -1,0 +1,133 @@
+.formContainer {
+  max-width: 400px;
+  margin: 40px auto;
+  padding: 24px;
+  border: 1px solid #444;
+  border-radius: 8px;
+  background-color: #2c2c2c;
+  display: flex;
+  flex-direction: column;
+  min-height: 450px;
+}
+
+.title {
+  text-align: center;
+  font-family: 'Montserrat', sans-serif;
+  color: rgba(255, 255, 255, 0.90);
+  margin-top: 10px;
+  margin-bottom: 24px;
+}
+
+.formGroup {
+  margin-bottom: 15px;
+}
+
+.label {
+  display: block;
+  margin-bottom: 5px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #555;
+  background-color: #333;
+  color: rgba(255, 255, 255, 0.87);
+  font-size: 1rem;
+  font-family: 'Roboto', sans-serif;
+}
+
+.buttonContainer{
+  margin-bottom: 10px;
+}
+
+.button {
+  width: 100%;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 6px;
+  background-color: #1976D2;
+  color: white;
+  cursor: pointer;
+  font-size: 1rem;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  transition: background-color 0.2s ease-in-out;
+  margin-top: 8px
+}
+
+.button:hover {
+  background-color: #1565C0;
+}
+
+.resendButton {
+  background-color: transparent;
+  border: 1px solid #4a4e54;
+  color: #64b5f6;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  font-family: 'Montserrat', sans-serif;
+  cursor: pointer;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  margin-top: 0px;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  width: auto;
+  align-self: flex-start;
+}
+
+.resendButton:hover {
+  background-color: rgba(100, 181, 246, 0.1);
+  border-color: #64b5f6;
+}
+
+
+.messageContainer {
+  margin-top: 0;
+  min-height: 24px;
+  text-align: left;
+}
+
+.successMessage {
+  background-color: rgba(76, 175, 80, 0.1);
+  color: #66bb6a;
+  border: 1px solid #388e3c;
+  padding: 12px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  text-align: center;
+  margin-top: 7px;
+}
+
+.apiErrorBox {
+  background-color: rgba(211, 47, 47, 0.15);
+  color: #ef9a9a;
+  border: 1px solid #d32f2f;
+  padding: 12px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  text-align: center;
+  margin-top: 7px;
+}
+
+.bottomLink {
+  text-align: center;
+  font-size: 0.9em;
+  margin-top: auto;
+  padding-top: 20px;
+}
+
+.link{
+  color: #64b5f6;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.link:hover{
+  text-decoration: underline;
+}

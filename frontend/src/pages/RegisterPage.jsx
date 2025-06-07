@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { registerUser, resendVerificationEmail } from '../services/apiService';
-import styles from './RegisterPage.module.css';
-import ResendIcon from '../components/common/ResendIcon';
+import { registerUser, resendVerificationEmail } from '@/services/apiService';
+
+import formStyles from '@/components/Form/Form.module.css';
+import pageStyles from '@/pages/RegisterPage.module.css';
+import ResendIcon from '@/components/common/ResendIcon';
+import PasswordInput from '@/components/Form/PasswordInput';
 
 /**
  * Validates a password against a set of security rules
- * @param {string} password Password to validate
+ * @param {string} password - The password to validate
  * @returns {string[]} Array of error messages for unmet requirements.
  */
 const validatePassword = (password) => {
@@ -107,79 +110,80 @@ function RegisterPage(){
     };
 
     return (
-        <div className={styles.container}>
-            <h1 className={styles.title}>Register New Account</h1>
+        <div className={formStyles.formContainer}>
+            <h1 className={formStyles.title}>Register</h1>
 
             <form onSubmit={handleSubmit}>
-                <div className={styles.formGroup}>
-                    <label htmlFor="email" className={styles.label}>Email:</label>
+                <div className={formStyles.formGroup}>
+                    <label htmlFor="email" className={formStyles.label}>Email:</label>
                     <input
                         type="email"
                         id="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className={styles.input}
+                        className={formStyles.input}
                         required
                         autoComplete="email"
                     />
                 </div>
-                <div className={styles.formGroup}>
-                    <label htmlFor="password" className={styles.label}>Password:</label>
-                    <input
-                        type="password"
+                <div className={formStyles.formGroup}>
+                    <label htmlFor="password" className={formStyles.label}>Password:</label>
+                    <PasswordInput
                         id="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className={styles.input}
-                        required
                         autoComplete="new-password"
                     />
                 </div>
-                <div className={styles.formGroup}>
-                    <label htmlFor="confirmPassword" className={styles.label}>Confirm Password:</label>
+                <div className={formStyles.formGroup}>
+                    <label htmlFor="confirmPassword" className={formStyles.label}>Confirm Password:</label>
                     <input
                         type="password"
                         id="confirmPassword"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className={styles.input}
+                        className={formStyles.input}
                         required
                         autoComplete="new-password" 
                     />
                 </div>
-                    <button type="submit" className={styles.button}>
+                <div className={formStyles.buttonContainer}>
+                    <button type="submit" className={formStyles.button}>
                     Register
                     </button>
+                </div>
             </form>
             {showResend && (
-                <button onClick={handleResend} className={styles.resendButton}>
-                    <ResendIcon />
-                    Resend verification email
-                </button>
+                <div className={formStyles.buttonContainer}>
+                    <button onClick={handleResend} className={`${formStyles.button} ${formStyles.resendButton}`}>
+                        <ResendIcon />
+                        Resend verification email
+                    </button>
+                </div>
             )}
-            <div className={styles.messageContainer}>
+            <div className={formStyles.messageContainer}>
                 {message && (
-                    <div className={styles.successMessage}>{message}</div>
+                    <div className={formStyles.successMessage}>{message}</div>
                 )}
 
                 {error && (
                     isApiError ? (
-                        <div className={styles.apiErrorBox}>{error}</div>
+                        <div className={formStyles.apiErrorBox}>{error}</div>
                     ) : (
-                        Array.isArray(error) ? (
-                            <div className={styles.validationErrorBox}> 
-                                <p className={styles.listHeading}>Password must contain:</p>
-                                <ul className={styles.validationErrorList}>
-                                    {error.map((err, index) => (
-                                        <li key={index}>{err}</li>
-                                    ))}
-                                </ul>
-                            </div>
+                        <div className={pageStyles.validationErrorBox}>
+                            {Array.isArray(error) ? ( 
+                                <>    
+                                    <p className={pageStyles.listHeading}>Password must contain:</p>
+                                    <ul className={pageStyles.validationErrorList}>
+                                        {error.map((err, index) => (
+                                            <li key={index}>{err}</li>
+                                        ))}
+                                    </ul>
+                                </>
                         ) : (
-                            <div className={styles.validationErrorBox}>
-                                <p className={styles.singleErrorHeading}>{error}</p>
-                            </div>
-                        )
+                            <p className={pageStyles.singleErrorText}>{error}</p>
+                        )}
+                        </div>
                     )
                 )}
             </div>
