@@ -362,8 +362,6 @@ app.post('/api/login', async (req, res) => {
             email: user.email
         };
 
-        console.log('JWT_SECRET used for signing:', process.env.JWT_SECRET);
-
         const token = jwt.sign(
             payload,
             process.env.JWT_SECRET,
