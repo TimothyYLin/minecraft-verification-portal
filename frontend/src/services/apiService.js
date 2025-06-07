@@ -3,7 +3,7 @@ const API_BASE_URL = 'http://localhost:3000/api';
 
 /**
  * Helper function to handle fetch responses.
- * @param {Response} response - Fetch response object
+ * @param {Response} response - Fetch the response object
  * @returns {Promise<object>} JSON response from server
  * @throws {Error} If API call fails or returns an error status
  */
@@ -52,9 +52,9 @@ function handleFetchError(error){
 
 /**
  * Requests to register the user
- * @param {string} email User's email
- * @param {string} password User's password
- * @returns {Promise<object>} JSON response from server
+ * @param {string} email - The user's email
+ * @param {string} password - The user's password
+ * @returns {Promise<object>} The JSON response from server
  * @throws {Error} If API call fails or returns with error status.
  */
 export async function registerUser(email, password){
@@ -75,8 +75,31 @@ export async function registerUser(email, password){
 }
 
 /**
+ * Handles user login
+ * @param {string} email - The user's email
+ * @param {string} password - The user's password
+ * @returns {Promise<object>} The JSON response from the server (including token)
+ */
+export async function loginUser(email, password){
+    try{
+        const response = await fetch(`${API_BASE_URL}/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify( {email, password} ),
+        });
+
+        return handleResponse(response);
+    }catch(error){
+        handleFetchError(error);
+    }
+}
+
+
+/**
  * Requests to resend the verification email
- * @param {string} email User's email
+ * @param {string} email - The user's email
  * @returns {Promise<object>} The JSON response from the server
  */
 export async function resendVerificationEmail(email){
