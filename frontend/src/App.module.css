@@ -3,6 +3,7 @@
     flex-direction: column;
     min-height: 100vh;
     width: 100%;
+    height: 100%;
 }
 
 .header {
@@ -59,7 +60,7 @@
 }
 
 .navButton:hover,
-.nabButton:focus {
+.navButton:focus {
     background-color: rgba(255, 255, 255, 0.08);
     color: #ffffff;
     outline: none;
@@ -95,7 +96,6 @@
     background-color: #1e1e1e;
     color: rgba(255, 255, 255, 0.6);
     width: 100%;
-    margin-top: auto;
 }
 
 .footer p {

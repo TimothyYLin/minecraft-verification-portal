@@ -1,30 +1,50 @@
 import React from 'react';
-import '@/App.css'
-import { Outlet, Link } from 'react-router-dom';
+import { Outlet, Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import styles from '@/App.module.css'
 
 function App() {
+  const { isAuthenticated, user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  }
+
   return (
-    <div className="app-container">
-      <header>
-        <nav>
-          <ul style={{ listStyleType: 'none', margin: 0, padding: 0, display: 'flex', gap: '15px' }}>
-            <li><Link to="/">Home</Link></li>
-            <li><Link to="/register">Register</Link></li>
-            <li><Link to="/login">Login</Link></li>
-            <li><Link to="/dashboard">Dashboard (Test)</Link></li>
+    <div className={styles.appContainer}>
+      <header className={styles.header}>
+        <nav className={styles.nav}>
+          <Link to="/" className={styles.navLogo}>Konoha Portal</Link>
+          <ul className={styles.navList}>
+            {isAuthenticated ? (
+              <>
+                <li className={styles.userInfo}>Welcome, {user?.email}</li>
+                <li><Link to="/dashboard" className={styles.navButton}>Dashboard</Link></li>
+                <li>
+                  <button onClick={handleLogout} className={`${styles.navButton} ${styles.logoutButton}`}>
+                    Logout
+                  </button>
+                </li>
+              </>
+            ) : (
+              <>
+                <li><Link to="/register" className={styles.navButton}>Register</Link></li>
+                <li><Link to="/login" className={styles.navButton}>Login</Link></li>
+              </>
+            )}
           </ul>
         </nav>
       </header>
-
-      <main>
+      <main className={styles.main}>
         <Outlet />
       </main>
-
-      <footer>
+      <footer className={styles.footer}>
         <p>&copy; {new Date().getFullYear()} Konoha Minecraft Portal</p>
       </footer>
     </div>    
   );
 }
 
-export default App
+export default App;

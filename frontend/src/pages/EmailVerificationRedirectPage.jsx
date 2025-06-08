@@ -1,21 +1,23 @@
 import React, { useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 
 function EmailVerificationRedirectPage(){
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
+    const { login } = useAuth();
 
     useEffect(() => {
         const token = searchParams.get('token');
         if(token){
             console.log('Captured token:', token);
-            localStorage.setItem('authToken', token);
-            navigate('/dashboard');
+            login(token);
+            navigate('/dashboard', { replace: true });
         }else{
             console.error('No token found in the URL.');
-            navigate('/login');
+            navigate('/login', { replace: true });
         }
-    }, [searchParams, navigate]);
+    }, [searchParams, navigate, login]);
 
     return (
         <div>
@@ -25,4 +27,4 @@ function EmailVerificationRedirectPage(){
     );
 }
 
-export default EmailVerificationRedirectPage
+export default EmailVerificationRedirectPage;

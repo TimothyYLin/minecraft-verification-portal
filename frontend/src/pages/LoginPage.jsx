@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { loginUser, resendVerificationEmail } from '@/services/apiService';
 
 import formStyles from '@/components/Form/Form.module.css';
@@ -7,6 +8,7 @@ import ResendIcon from '@/components/common/ResendIcon';
 import PasswordInput from '@/components/Form/PasswordInput';
 
 function LoginPage(){
+    const { login } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -41,8 +43,7 @@ function LoginPage(){
 
         try{
             const data = await loginUser(email, password);
-            // TODO: Use AuthContext to save token
-            localStorage.setItem('authToken', data.token);
+            login(data.token);
             navigate('/dashboard');
         }catch(err){
             setError(err.message || 'An unexpected error occured.');
