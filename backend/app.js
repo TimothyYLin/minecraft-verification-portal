@@ -5,22 +5,31 @@ const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 // const { Rcon: rcon } = require('rcon-client').Rcon; // TODO: Use when Minecraft
 const Database = require('better-sqlite3');
 require('dotenv').config();
 
 const app = express();
+app.set('trust proxy', 1);
 const db = new Database('./minecraft.db');
 const PORT = 3000;  // Default HTTPS port
 
 const EMAIL_VERIFICATION_EXPIRATION_MINUTES = 15;
 const MC_CODE_EXPIRATION_MINUTES = 15;
+const SEVEN_DAYS_IN_MS = 60 * 1000;
+const ACCESS_TOKEN_EXPIRES_IN = '15m';
+const REFRESH_TOKEN_EXPIRES_IN = '7d';
 
 // TODO: process.env.JWT_SECRET use Kubernetes Secrets
 // TODO: Environment validation of dotenv
 
 // Middleware
-app.use(cors());
+app.use(cookieParser());
+app.use(cors({
+    origin: process.env.FRONTEND_URL || 'https://localhost:5173',
+    credentials: true
+}));
 app.use(helmet()); // Add security headers
 app.use(express.json());  // Parse incoming json req
 
@@ -55,6 +64,7 @@ try {
             mc_username TEXT,
             approved INTEGER DEFAULT 0,
             mc_verified INTEGER DEFAULT 0,
+            refresh_token TEXT UNIQUE,
             created_at TEXT DEFAULT CURRENT_TIMESTAMP
         );
 
@@ -63,7 +73,7 @@ try {
             code TEXT NOT NULL,
             created_at TEXT DEFAULT CURRENT_TIMESTAMP,
             expires_at TEXT NOT NULL,
-            FOREIGN KEY(user_id) REFERENCES users(id)
+            FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
         );
 
         CREATE TABLE IF NOT EXISTS minecraft_verification_codes(
@@ -71,10 +81,12 @@ try {
             code TEXT NOT NULL,
             created_at TEXT DEFAULT CURRENT_TIMESTAMP,
             expires_at TEXT NOT NULL,
-            FOREIGN KEY(user_id) REFERENCES users(id)
+            FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
         );
 
         CREATE INDEX IF NOT EXISTS idx_mc_username_verified ON users(mc_username, mc_verified);
+
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_users_refresh_token ON users(refresh_token);
     `);
 
     console.log('Database setup complete or already exists.');
@@ -137,7 +149,10 @@ function authenticateToken(req, res, next){
     const token = authHeader && authHeader.split(' ')[1];
 
     if(!token){
-        return res.status(401).json({ error: 'Unauthorized: Missing token' });
+        return res.status(401).json({
+            code: 'TOKEN_MISSING',
+            error: 'Unauthorized: Missing token'
+        });
     }
 
     console.log('JWT_SECRET used for verification:', process.env.JWT_SECRET);
@@ -145,7 +160,16 @@ function authenticateToken(req, res, next){
 
     jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
         if(err){
-            return res.status(403).json({ error: 'Forbidden: Invalid token' });
+            if (err.name === 'TokenExpiredError') {
+                return res.status(401).json({
+                    code: 'TOKEN_EXPIRED',
+                    error: 'Unauthorized: Token has expired'
+                });
+            }
+            return res.status(403).json({
+                code: 'TOKEN_INVALID',
+                error: 'Forbidden: Invalid token'
+            });
         }
         req.user = user;
         next();
@@ -239,50 +263,68 @@ app.get('/api/verify-email', (req, res) => {
         return res.status(400).send('<h1>Error: Verification code is missing.</h1>');
     }
 
-    const transaction = db.transaction(() => {
-        const verificationRecord = db.prepare(`
-            SELECT user_id, expires_at FROM email_verifications WHERE code = ?
-        `).get(code);
+    try{
+        const transaction = db.transaction(() => {
+            const verificationRecord = db.prepare(`
+                SELECT user_id, expires_at FROM email_verifications WHERE code = ?
+            `).get(code);
 
-        if(!verificationRecord){
-            return { error: 'Invalid verification code.' };
+            if(!verificationRecord){
+                return { error: 'Invalid verification code.' };
+            }
+
+            if (new Date() > new Date(verificationRecord.expires_at)){
+                db.prepare('DELETE FROM email_verifications WHERE code = ?').run(code);
+                return { error: 'This verification link has expired. Please request a new one.'};
+            }
+
+            db.prepare('UPDATE users SET email_verified = 1 WHERE id = ?').run(verificationRecord.user_id);
+
+            const user = db.prepare('SELECT id, email FROM users WHERE id = ?').get(verificationRecord.user_id);
+            db.prepare(`DELETE FROM email_verifications WHERE code = ?`).run(code);
+
+            if(!user){
+                return { error: 'Could not find user associated with this verification code.'};
+            }
+
+            return { success: true, user: user };
+        });
+
+        const result = transaction();
+        if(result.error){
+            return res.status(400).send(`<h1>Verification Failed</h1><p>${result.error}</p>`);
         }
 
-        if (new Date() > new Date(verificationRecord.expires_at)){
-            db.prepare('DELETE FROM email_verifications WHERE code = ?').run(code);
-            return { error: 'This verification link has expired. Please request a new one.'};
-        }
+        const user = result.user;
 
-        db.prepare('UPDATE users SET email_verified = 1 WHERE id = ?').run(verificationRecord.user_id);
+        const accessToken = jwt.sign(
+            { id: user.id, email: user.email },
+            process.env.JWT_SECRET,
+            { expiresIn: ACCESS_TOKEN_EXPIRES_IN }
+        );
 
-        const user = db.prepare('SELECT id, email FROM users WHERE id = ?').get(verificationRecord.user_id);
-        db.prepare(`DELETE FROM email_verifications WHERE code = ?`).run(code);
+        const refreshToken = jwt.sign(
+            { id: user.id },
+            process.env.REFRESH_TOKEN_SECRET,
+            { expiresIn: REFRESH_TOKEN_EXPIRES_IN }
+        );
 
-        if(!user){
-            return { error: 'Could not find user associated with this verification code.'};
-        }
+        db.prepare('UPDATE users SET refresh_token = ? WHERE id = ?').run(refreshToken, user.id);
 
-        return { success: true, user: user };
-    });
+        console.log(`[VERIFY-EMAIL] Setting cookie for user ${user.id} with token: ${refreshToken}`);
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: SEVEN_DAYS_IN_MS
+        });
 
-    const result = transaction();
-    if(result.error){
-        return res.status(400).send(`<h1>Verification Failed</h1><p>${result.error}</p>`);
+        const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+        return res.redirect(`${frontendUrl}/login-success?token=${accessToken}`);
+    }catch(dbError){
+        console.error("Database error during email verification:", dbError);
+        return res.status(500).send(`<h1>Error</h1><p>An internal server error occurred.</p>`);
     }
-
-    const payload = {
-        id: result.user.id,
-        email: result.user.email
-    };
-
-    const token = jwt.sign(
-        payload,
-        process.env.JWT_SECRET,
-        { expiresIn: '3d' }
-    );
-
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
-    return res.redirect(`${frontendUrl}/login-success?token=${token}`);
 });
 
 app.post('/api/resend-verification', async (req, res) => {
@@ -342,12 +384,18 @@ app.post('/api/login', async (req, res) => {
     try {
         const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
         if (!user) {
-            return res.status(401).json({ error: 'Invalid email or password' });
+            return res.status(401).json({
+                code: 'INVALID_CREDENTIALS',
+                error: 'Invalid email or password'
+            });
         }
 
         const match = await bcrypt.compare(password, user.password_hash);
         if (!match) {
-            return res.status(401).json({ error: 'Invalid email or password' });
+            return res.status(401).json({
+                code: 'INVALID_CREDENTIALS',
+                error: 'Invalid email or password'
+            });
         }
 
         if (!user.email_verified) {
@@ -357,20 +405,30 @@ app.post('/api/login', async (req, res) => {
             });
         }
 
-        const payload = {
-            id: user.id,
-            email: user.email
-        };
-
-        const token = jwt.sign(
-            payload,
+        const accessToken = jwt.sign(
+            { id: user.id, email: user.email },
             process.env.JWT_SECRET,
-            { expiresIn: '3d'}
+            { expiresIn: ACCESS_TOKEN_EXPIRES_IN }
         );
+
+        const refreshToken = jwt.sign(
+            { id: user.id },
+            process.env.REFRESH_TOKEN_SECRET,
+            { expiresIn: REFRESH_TOKEN_EXPIRES_IN }
+        );
+
+        db.prepare('UPDATE users SET refresh_token = ? WHERE id = ?').run(refreshToken, user.id);
+
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: SEVEN_DAYS_IN_MS
+        });
 
         return res.status(200).json({ 
             message: 'Login successful.',
-            token: token 
+            token: accessToken 
         });
     } catch (err) {
         console.error('Login error:', err);
@@ -378,6 +436,85 @@ app.post('/api/login', async (req, res) => {
     }
 
 });
+
+app.post('/api/refresh-token', (req, res) => {
+    const oldRefreshToken = req.cookies.refreshToken;
+    console.log(`[REFRESH-TOKEN] Received cookie with token: ${oldRefreshToken}`);
+    if(!oldRefreshToken){
+        return res.status(401).json({
+            code: 'REFRESH_TOKEN_MISSING',
+            error: 'No refresh token provided.'
+        });
+    }
+
+    try{
+        const user = db.prepare('SELECT * FROM users WHERE refresh_token = ?').get(oldRefreshToken);
+        if(!user){
+            try {
+                const decoded = jwt.decode(oldRefreshToken);
+                if (decoded && decoded.id) {
+                    console.warn(`SECURITY: Reused refresh token detected for user ID: ${decoded.id}. Forcing logout.`);
+                    db.prepare('UPDATE users SET refresh_token = NULL WHERE id = ?').run(decoded.id);
+                }
+            } catch (decodeError) {
+                console.error("Could not decode the invalid refresh token:", decodeError);
+            }
+            res.clearCookie('refreshToken');
+            return res.status(403).json({ error: 'Forbidden' });
+        }
+
+        jwt.verify(oldRefreshToken, process.env.REFRESH_TOKEN_SECRET, (err, decoded) => {
+            if(err || user.id !== decoded.id){
+                db.prepare('UPDATE users SET refresh_token = NULL WHERE id = ?').run(user.id);
+                res.clearCookie('refreshToken');
+                return res.status(403).json({ error: 'Forbidden' });
+            }
+
+            // Sliding Session Logic
+            const newAccessToken = jwt.sign(
+                { id: user.id, email: user.email },
+                process.env.JWT_SECRET,
+                {expiresIn: ACCESS_TOKEN_EXPIRES_IN }
+            );
+
+            const newRefreshToken = jwt.sign(
+                { id: user.id },
+                process.env.REFRESH_TOKEN_SECRET,
+                { expiresIn: REFRESH_TOKEN_EXPIRES_IN }
+            );
+
+            db.prepare('UPDATE users SET refresh_token = ? WHERE id = ?').run(newRefreshToken, user.id);
+
+            res.cookie('refreshToken', newRefreshToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
+                maxAge: SEVEN_DAYS_IN_MS
+            });
+
+            res.status(200).json({ token: newAccessToken });
+        });
+    }catch(dbError){
+        console.error("Database error during token refresh:", dbError);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.post('/api/logout', (req, res) => {
+    const refreshToken = req.cookies.refreshToken;
+    try{
+        if(refreshToken){
+            db.prepare('UPDATE users SET refresh_token = NULL WHERE refresh_token = ?').run(refreshToken);
+        }
+        res.clearCookie('refreshToken');
+        return res.status(200).json({ message: 'Logout successful.' });
+    }catch(dbError){
+        console.error("Database error during logout:", dbError);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.use(authenticateToken);
 
 app.post('/api/mc-username', authenticateToken, async (req, res) => {
     const userId = req.user.id;

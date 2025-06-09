@@ -1,118 +1,57 @@
+import axios from 'axios';
+
 //TODO: Move this to .env
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
-/**
- * Helper function to handle fetch responses.
- * @param {Response} response - Fetch the response object
- * @returns {Promise<object>} JSON response from server
- * @throws {Error} If API call fails or returns an error status
- */
-async function handleResponse(response){
-    if(!response.ok){
-        let errorData = null;
-        try{
-            errorData = await response.json();
-        }catch(e){
-            // Fall through catching invalid JSON
+const api = axios.create({
+    baseURL: API_BASE_URL,
+    withCredentials: true
+});
+
+export const setAuthToken = (token) => {
+    if (token){
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    } else {
+        delete api.defaults.headers.common['Authorization'];
+    }
+};
+
+api.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        const originalRequest = error.config;
+
+        if (error.response?.status === 401 && 
+            error.response.data?.code === 'TOKEN_EXPIRED' &&
+            !originalRequest._retry
+        ){
+            originalRequest._retry = true;
+            try{
+                console.log('Access token expired. Attemping to refresh...');
+                const { data } = await api.post('/refresh-token');
+
+                const loginSuccessEvent = new CustomEvent('loginSuccess', { detail: data.token });
+                window.dispatchEvent(loginSuccessEvent);
+
+                originalRequest.headers['Authorization'] = `Bearer ${data.token}`;
+                return api(originalRequest);
+            }catch(refreshError){
+                const logoutEvent = new Event('logout');
+                window.dispatchEvent(logoutEvent);
+                return Promise.reject(new Error('Your session has expired. Please log in again.'));
+            }
         }
 
-        const errorMessage = (errorData && errorData.error) || (errorData && errorData.message) || `HTTP error! status: ${response.status}`;
-        const error = new Error(errorMessage);
-
-        if(errorData && errorData.code){
-            error.code = errorData.code;
-        }
-
-        throw error;
+        const apiError = new Error(error.response?.data?.message || error.response?.data?.error || 'An API error occurred.');
+        apiError.code = error.response?.data?.code;
+        return Promise.reject(apiError);
     }
+);
 
-    if(response.status === 204){
-        return {};
-    }
+export const registerUser = async (email, password) => (await api.post('/register', { email, password })).data;
+export const loginUser = async (email, password) => (await api.post('/login', { email, password })).data;
+export const resendVerificationEmail = async (email) => (await api.post('/resend-verification', { email })).data;
+export const linkMinecraftUsername = async (mc_username) => (await api.post('/mc-username', { mc_username })).data;
+export const logoutUser = () => api.post('/logout');
 
-    try {
-        return await response.json();
-    }catch(e){
-        console.error("Failed to parse JSON from a successful respons:", e);
-        throw new Error("The server's response was successful, but the data was not in the correct format.");
-    }
-}
-
-/**
- * Helper function for network errors and provide better message
- */
-function handleFetchError(error){
-    console.error('API Fetch Error:', error);
-    if(error instanceof TypeError && error.message === 'Failed to fetch'){
-        throw new Error('Unable to connect to the server. Please check your network connection or try again later.');
-    }
-    throw error;
-}
-
-
-/**
- * Requests to register the user
- * @param {string} email - The user's email
- * @param {string} password - The user's password
- * @returns {Promise<object>} The JSON response from server
- * @throws {Error} If API call fails or returns with error status.
- */
-export async function registerUser(email, password){
-    try{
-        const response = await fetch(`${API_BASE_URL}/register`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email, password }),
-        });
-
-        return handleResponse(response);
-    }catch(error){
-        console.error('Error during registration:', error);
-        handleFetchError(error);
-    }
-}
-
-/**
- * Handles user login
- * @param {string} email - The user's email
- * @param {string} password - The user's password
- * @returns {Promise<object>} The JSON response from the server (including token)
- */
-export async function loginUser(email, password){
-    try{
-        const response = await fetch(`${API_BASE_URL}/login`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify( {email, password} ),
-        });
-
-        return handleResponse(response);
-    }catch(error){
-        handleFetchError(error);
-    }
-}
-
-
-/**
- * Requests to resend the verification email
- * @param {string} email - The user's email
- * @returns {Promise<object>} The JSON response from the server
- */
-export async function resendVerificationEmail(email){
-    try{
-        const response = await fetch(`${API_BASE_URL}/resend-verification`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email }),
-        });
-        return handleResponse(response);
-    }catch(error){
-        handleFetchError(error);
-    }
-}
+export default api;
