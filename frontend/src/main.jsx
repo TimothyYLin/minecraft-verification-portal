@@ -1,7 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { AuthProvider  } from '@/contexts/AuthContext';
+import { AuthProvider  } from '@/contexts/AuthProvider';
 
 import App from '@/App.jsx'
 import HomePage from '@/pages/HomePage.jsx';
@@ -10,7 +10,7 @@ import LoginPage from '@/pages/LoginPage.jsx';
 import DashboardPage from '@/pages/DashboardPage.jsx';
 import EmailVerificationRedirectPage from '@/pages/EmailVerificationRedirectPage.jsx';
 import NotFoundPage from '@/pages/NotFoundPage.jsx';
-
+import ProtectedRoute from '@/router/ProtectedRoute';
 import '@/index.css';
 
 const container = document.getElementById('root');
@@ -26,8 +26,12 @@ root.render(
             <Route index element={<HomePage />} />
             <Route path="register" element={<RegisterPage />} />
             <Route path="login" element={<LoginPage />} />
-            <Route path="dashboard" element={<DashboardPage />} />
-            <Route path="email-verification-redirect" element={<EmailVerificationRedirectPage />} />
+            <Route path="login-success" element={<EmailVerificationRedirectPage />} />
+
+            <Route element={<ProtectedRoute />}>
+              <Route path="dashboard" element={<DashboardPage />} />
+            </Route>
+
             <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
