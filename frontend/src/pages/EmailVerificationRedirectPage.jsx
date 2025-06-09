@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 
 function EmailVerificationRedirectPage(){
     const [searchParams] = useSearchParams();
@@ -20,7 +20,7 @@ function EmailVerificationRedirectPage(){
     }, [searchParams, navigate, login]);
 
     return (
-        <div>
+        <div style={{ padding: '40px', textAlign: 'center', color: 'white' }}>
             <h1>Verifying your email...</h1>
             <p>Please wait while we log you in.</p>
         </div>

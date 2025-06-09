@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 import { loginUser, resendVerificationEmail } from '@/services/apiService';
 
 import formStyles from '@/components/Form/Form.module.css';
