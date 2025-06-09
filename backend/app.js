@@ -26,32 +26,15 @@ const REFRESH_TOKEN_EXPIRES_IN = '7d';
 
 // Middleware
 app.use(cookieParser());
-app.use(cors({
-    origin: process.env.FRONTEND_URL || 'https://localhost:5173',
-    credentials: true
-}));
+if (process.env.NODE_ENV !== 'production'){
+    console.log('CORS middleware enabled for development.');
+    app.use(cors({
+        origin: process.env.FRONTEND_URL || 'https://localhost:5173',
+        credentials: true
+    }));
+}
 app.use(helmet()); // Add security headers
 app.use(express.json());  // Parse incoming json req
-
-// For debugging purposes
-// app.use(express.json({
-//     verify: (req, res, buf, encoding) => {
-//         // This function is called with the raw buffer of the body
-//         // before express.json() tries to parse it.
-//         // We'll store it on the request object to log it in the actual route
-//         // if an error occurs, or just log it here for all requests if needed.
-//         try {
-//             // You can try to parse it here to see if it's valid immediately
-//             console.log("REQ:", req);
-//             JSON.parse(buf.toString(encoding));
-//         } catch (e) {
-//             // If it's not valid JSON, log the raw buffer content
-//             console.error('RAW BODY RECEIVED (INVALID JSON):', buf.toString(encoding));
-//         }
-//         // You can also attach it to req to be logged in the specific route handler
-//         req.rawBodyBuffer = buf; // Store the buffer
-//     }
-// }));
 
 // SQLite Table Creation
 try {
