@@ -16,6 +16,7 @@ export const setAuthToken = (token) => {
     }
 };
 
+// On failure of an API call due to expired token, try to refresh token then automatically re-request
 api.interceptors.response.use(
     (response) => response,
     async (error) => {

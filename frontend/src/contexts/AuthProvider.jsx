@@ -9,6 +9,7 @@ export function AuthProvider({ children }){
 
     const initialLoadAttempt = useRef(false);
 
+    // This function is more like a loginFrontend. The backend is already logged in, this is just to update frontend state.
     const login = useCallback((accessToken) => {
         if(!accessToken){
             console.error("Login function called without a token.");
@@ -36,6 +37,7 @@ export function AuthProvider({ children }){
         }
     }, []);
 
+    // On first load (new tab), attempt to refresh token and login. If fail, then stay logged out.
     useEffect(() => {
         if(initialLoadAttempt.current){
             return;
@@ -59,6 +61,7 @@ export function AuthProvider({ children }){
 
     }, [login]);
 
+    // Create event listeners that will call login/logout to update state when apiService gets a new token
     useEffect(() => {
         const handleLoginEvent = (event) => login(event.detail);
         const handleLogoutEvent = () => logout();
