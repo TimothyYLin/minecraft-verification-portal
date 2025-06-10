@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { registerUser, resendVerificationEmail } from '@/services/apiService';
 
 import formStyles from '@/components/Form/Form.module.css';
@@ -187,6 +188,9 @@ function RegisterPage(){
                     )
                 )}
             </div>
+            <p className={formStyles.bottomLink}>
+                Already have an account? <Link to="/login" className={formStyles.link}>Login here</Link>
+            </p>
         </div>
     );
 }
