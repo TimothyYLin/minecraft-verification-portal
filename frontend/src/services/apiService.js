@@ -54,5 +54,6 @@ export const loginUser = async (email, password) => (await api.post('/login', { 
 export const resendVerificationEmail = async (email) => (await api.post('/resend-verification', { email })).data;
 export const linkMinecraftUsername = async (mc_username) => (await api.post('/mc-username', { mc_username })).data;
 export const logoutUser = () => api.post('/logout');
+export const getAccountStatus = async () => (await api.get('/account-status')).data;
 
 export default api;

@@ -498,8 +498,8 @@ app.post('/api/logout', (req, res) => {
     }
 });
 
-app.use(authenticateToken);
 
+// Protected Routes
 app.post('/api/mc-username', authenticateToken, async (req, res) => {
     const userId = req.user.id;
     const { mc_username } = req.body;
@@ -599,7 +599,7 @@ app.post('/api/mc-username', authenticateToken, async (req, res) => {
         })();
 
         return res.status(200).json({
-            message: 'Mincraft username linked. Please use the following code in-game:',
+            message: 'Minecraft username linked. Please use the following code in-game:',
             code: generatedCode
         });
 
@@ -609,6 +609,33 @@ app.post('/api/mc-username', authenticateToken, async (req, res) => {
     }
 });
 
+app.get('/api/account-status', authenticateToken, (req, res) => {
+    const userId = req.user.id;
+
+    try{
+        const user = db.prepare(
+            'SELECT mc_username, mc_verified FROM users WHERE id = ?'
+        ).get(userId);
+
+        if(!user){
+            return res.status(404).json({ error: 'User not found.' });
+        }
+
+        const mcCodeRecord = db.prepare(
+            'SELECT code, expires_at FROM minecraft_verification_codes WHERE user_id = ? AND expires_at > ?'
+        ).get(userId, new Date().toISOString());
+
+        res.json({
+            mc_username: user.mc_username,
+            mc_verified: user.mc_verified === 1,
+            active_code: mcCodeRecord ? mcCodeRecord.code : null,
+            code_expires_at: mcCodeRecord ? mcCodeRecord.expires_at : null,
+        });
+    }catch(error){
+        console.error('Error fetching account status:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
 
 const ACTUAL_PORT = process.env.PORT || 3000;
 
