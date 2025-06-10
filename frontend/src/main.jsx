@@ -11,6 +11,8 @@ import DashboardPage from '@/pages/DashboardPage.jsx';
 import EmailVerificationRedirectPage from '@/pages/EmailVerificationRedirectPage.jsx';
 import NotFoundPage from '@/pages/NotFoundPage.jsx';
 import ProtectedRoute from '@/router/ProtectedRoute';
+import PublicRoute from '@/router/PublicRoute';
+
 import '@/index.css';
 
 const container = document.getElementById('root');
@@ -24,9 +26,12 @@ root.render(
         <Routes>
           <Route path="/" element={<App />}>
             <Route index element={<HomePage />} />
-            <Route path="register" element={<RegisterPage />} />
-            <Route path="login" element={<LoginPage />} />
             <Route path="login-success" element={<EmailVerificationRedirectPage />} />
+
+            <Route element={<PublicRoute />}>
+              <Route path="register" element={<RegisterPage />} />
+              <Route path="login" element={<LoginPage />} />
+            </Route>
 
             <Route element={<ProtectedRoute />}>
               <Route path="dashboard" element={<DashboardPage />} />
