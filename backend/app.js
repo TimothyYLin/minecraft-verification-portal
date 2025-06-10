@@ -13,13 +13,14 @@ require('dotenv').config();
 const app = express();
 app.set('trust proxy', 1);
 const db = new Database('./minecraft.db');
-const PORT = 3000;  // Default HTTPS port
 
+// Constants
 const EMAIL_VERIFICATION_EXPIRATION_MINUTES = 15;
 const MC_CODE_EXPIRATION_MINUTES = 15;
 const SEVEN_DAYS_IN_MS = 60 * 1000;
 const ACCESS_TOKEN_EXPIRES_IN = '15m';
 const REFRESH_TOKEN_EXPIRES_IN = '7d';
+const MOJANG_API_URL = 'https://api.mojang.com/users/profiles/minecraft'
 
 // TODO: process.env.JWT_SECRET use Kubernetes Secrets
 // TODO: Environment validation of dotenv
@@ -122,7 +123,7 @@ async function sendVerificationEmail(toEmail, code) {
 }
 
 async function isValidMinecraftUsername(username) {
-    const response = await fetch(`https://api.mojang.com/users/profiles/minecraft/${username}`);
+    const response = await fetch(`${MOJANG_API_URL}/${username}`);
     return response.status === 200;
 }
 
