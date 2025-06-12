@@ -30,8 +30,8 @@
 .successDisplay {
     margin-bottom: 20px;
     padding: 20px;
-    background-color: #2c3e34; /* Dark, muted green */
-    border: 1px solid #66bb6a;  /* Brighter green border */
+    background-color: #2c3e34;
+    border: 1px solid #66bb6a;
     color: rgba(255, 255, 255, 0.9);
     border-radius: 6px;
     text-align: center;

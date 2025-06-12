@@ -31,6 +31,7 @@ function Countdown({ expiryTimestamp, onExpire }) {
 function DashboardPage() {
 	const [mcUsername, setMcUsername] = useState('');
 	const [error, setError] = useState('');
+    const [infoMessage, setInfoMessage] = useState('');
 	const [accountStatus, setAccountStatus] = useState(null);
 	const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -91,6 +92,7 @@ function DashboardPage() {
 	const handleSubmit = async (event) => {
 		event.preventDefault();
 		setError('');
+        setInfoMessage('');
         setRecentlyVerifiedAccount(null);
 
         let usernameToSubmit = mcUsername.trim();
@@ -105,11 +107,17 @@ function DashboardPage() {
 
         setIsSubmitting(true);
 		try{
-			await linkMinecraftUsername(usernameToSubmit);
-			await fetchAccountStatus();
-			setMcUsername('');
+			const response = await linkMinecraftUsername(usernameToSubmit);
+            await fetchAccountStatus();
+
+            if(response.code === 'ALREADY_VERIFIED'){
+                setInfoMessage(response.message);
+            }
+
+            setMcUsername('');
 		}catch(err){
 			setError(err.message || 'An unexpected error occurred.');
+            setMcUsername('');
 		}finally{
             setIsSubmitting(false);
         }
@@ -128,7 +136,7 @@ function DashboardPage() {
         return <div>Loading dashboard...</div>;
     }
 
-    const renderStatus = () => {
+    const renderStatusMessages = () => {
         if(recentlyVerifiedAccount){
             return (
                 <div className={pageStyles.successDisplay}>
@@ -153,7 +161,7 @@ function DashboardPage() {
             )
         }
 
-        if(accountStatus?.linked_accounts && accountStatus.linked_accounts.length > 0){
+        if(lastNotVerifiedAcc && !isSubmitting && !infoMessage && !error){
             return (
                 <div className={pageStyles.statusDisplay}>
                     <p>Your previous verification code for <strong>{accountStatus?.linked_accounts[0]?.mc_username}</strong> has expired.</p>
@@ -172,7 +180,7 @@ function DashboardPage() {
 				<p>Manage your account settings and Minecraft server access.</p>
 			</div>
 
-            {renderStatus()}
+            {renderStatusMessages()}
 
             <AccountList accounts={accountStatus?.linked_accounts}/>
 
@@ -198,7 +206,8 @@ function DashboardPage() {
                             />
                             {lastNotVerifiedAcc && (
                                 <p className={formStyles.helperText}>
-                                    This is your last unverified account. Click the button to use it, or type a different name.
+                                    This is your most recently linked and unverified account.
+                                    Click the button to get a new verification code for it, or type a different name.
                                 </p>
                             )}
                         </div>
@@ -212,11 +221,10 @@ function DashboardPage() {
                             </button>
                         </div>
                     </form>
-                    {error && (
-                        <div className={formStyles.messageContainer}>
-                            <div className={formStyles.apiErrorBox}>{error}</div>
-                        </div>
-                    )}
+                    <div className={formStyles.messageContainer}>
+                        {infoMessage && (<div className={formStyles.apiInfoBox}>{infoMessage}</div>)}
+                        {error && (<div className={formStyles.apiErrorBox}>{error}</div>)}
+                    </div>
                 </div>
             )}
 		</div>

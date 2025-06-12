@@ -89,6 +89,7 @@ router.post('/mc-username', authenticateToken, async (req, res) => {
             if(existingLink.is_verified){
                 await client.query('COMMIT');
                 return res.status(200).json({
+                    code: 'ALREADY_VERIFIED',
                     message: 'You have already verified this account. The username has been updated if it changed.'
                 });
             }

@@ -115,6 +115,17 @@
   margin-top: 7px;
 }
 
+.apiInfoBox {
+  background-color: rgba(100, 116, 139, 0.15);
+  color: #94a3b8;
+  border: 1px solid #475569;
+  padding: 12px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  text-align: center;
+  margin-top: 7px;
+}
+
 .bottomLink {
   text-align: center;
   font-size: 0.9em;
@@ -134,6 +145,6 @@
 
 .helperText {
     font-size: 0.75rem;
-    color: #718096;
+    color: #94a3b8;
     margin-top: 0.25rem;
 }
