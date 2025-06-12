@@ -131,3 +131,9 @@
 .link:hover{
   text-decoration: underline;
 }
+
+.helperText {
+    font-size: 0.75rem;
+    color: #718096;
+    margin-top: 0.25rem;
+}
