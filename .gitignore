@@ -1,4 +1,5 @@
 # Environment variables
+postgres.env
 backend/.env
 frontend/.env
 
@@ -7,12 +8,6 @@ backend/.git_old_webapp_history/
 
 # Node modules
 backend/node_modules/
-
-# SQLite database files
-backend/*.sqlite
-backend/*.sqlite3
-backend/database.sqlite
-backend/*.db
 
 # API Testing
 backend/api.http
