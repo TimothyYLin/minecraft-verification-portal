@@ -1,11 +1,16 @@
-require('module-alias/register');
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env')});
+
+const moduleAlias = require('module-alias');
+moduleAlias.addAliases({
+  '@': path.join(__dirname, 'src')
+});
+
 const express = require('express')
 const cors = require('cors');
 const helmet = require('helmet')
 const cookieParser = require('cookie-parser');
 // const { Rcon: rcon } = require('rcon-client').Rcon; // TODO: Use when Minecraft
-
-require('dotenv').config();
 
 const { setupDatabase } = require('@/utils/dbSetup');
 const authRoutes = require('@/routes/authRoutes');
@@ -31,17 +36,29 @@ if (process.env.NODE_ENV !== 'production'){
 app.use(helmet()); // Add security headers
 app.use(express.json());  // Parse incoming json req
 
-// Run Database Setup on start
-setupDatabase().catch(console.error);
-
 // Mount Routers
 app.use('/api', authRoutes);
 app.use('/api', minecraftRoutes);
 app.use('/api/internal', internalRoutes);
 
 
+const startServer = async () => {
+    try{
+        // Try starting database
+        console.log('Connecting to database and setting up schema...');
+        await setupDatabase();
+
+        console.log('Database setup successful.');
+
+        const ACTUAL_PORT = process.env.PORT || 3000;
+        app.listen(ACTUAL_PORT, () => {
+            console.log(`Server running on http://localhost:${ACTUAL_PORT}`);
+        });
+    }catch(error){
+        console.error('CRITICAL: Failed to set up database on startup. Application will exit.', error);
+        process.exit(1);
+    }
+};
+
 // Server Start
-const ACTUAL_PORT = process.env.PORT || 3000;
-app.listen(ACTUAL_PORT, () => {
-    console.log(`Server running on http://localhost:${ACTUAL_PORT}`);
-});
+startServer();
