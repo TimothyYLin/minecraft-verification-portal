@@ -1,0 +1,42 @@
+{
+  "name": "minecraft-verification-portal",
+  "version": "1.0.1",
+  "main": "backend/app.js",
+  "scripts": {
+    "start": "node -r module-alias/register backend/app.js",
+    "server": "nodemon backend/app.js",
+    "client": "npm run dev --prefix frontend",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "build": "npm install --prefix frontend && npm run build --prefix frontend",
+    "install-all": "npm install && npm install --prefix frontend"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TimothyYLin/minecraft-verification-portal.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TimothyYLin/minecraft-verification-portal/issues"
+  },
+  "homepage": "https://github.com/TimothyYLin/minecraft-verification-portal#readme",
+  "description": "",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "module-alias": "^2.2.3",
+    "nodemailer": "^7.0.3",
+    "pg": "^8.16.0",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "nodemon": "^3.1.10"
+  }
+}
