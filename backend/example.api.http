@@ -48,3 +48,6 @@ X-Internal-API-Key: <SOME_LONG_SECURE_INTERNAL_API_KEY>
     "code": "<MINECRAFT_VERIFICATION_CODE_GENERATED>",
     "mc_uuid": "<MINECRAFT_UUID>"
 }
+
+### Check if minecraft user is verified
+GET http://localhost:3000/api/is-verified?mc_uuid=<MINECRAFT_UUID>

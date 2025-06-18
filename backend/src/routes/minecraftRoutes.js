@@ -185,16 +185,18 @@ router.get('/account-status', authenticateToken, async (req, res) => {
 
 // GET /api/is-verified
 router.get('/is-verified', async (req, res) => {
-    const { uuid } = req.query;
+    const { mc_uuid } = req.query;
 
-    if (!uuid) {
-        return res.status(400).json({ error: 'Missing uuid query parameter' });
+    if (!mc_uuid) {
+        return res.status(400).json({ error: 'Missing mc_uuid query parameter' });
     }
 
     try{
-        const verifyResult = await pool.query(`SELECT is_verified FROM minecraft_accounts WHERE uuid = $1`, [uuid]);
+        const verifyResult = await pool.query(`
+            SELECT is_verified FROM minecraft_accounts WHERE mc_uuid = $1`, 
+            [mc_uuid]);
         if(verifyResult.rows.length === 0){
-            console.log(`is-verified route failed to find a linked user with UUID ${uuid}`);
+            console.log(`is-verified route failed to find a linked user with UUID ${mc_uuid}`);
             return res.status(404).json({ error: 'UUID is not a linked minecraft user' });
         }
 
