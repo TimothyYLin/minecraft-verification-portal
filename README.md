@@ -133,7 +133,7 @@ The server requires environment variables to connect to the database and for oth
     EMAIL_PASS=<long_secure_email_application_password>
 
     APP_BASE_URL="http://localhost:3000"
-    FRONTEND_URL+"https://localhost:5173"
+    FRONTEND_URL="https://localhost:5173"
 
     INTERNAL_API_KEY=<long_secure_internal_api_key>
     ```

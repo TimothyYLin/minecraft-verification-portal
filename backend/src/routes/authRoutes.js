@@ -193,7 +193,7 @@ router.get('/verify-email', async (req, res) => {
 
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
+            secure: true,
             sameSite: 'lax',
             maxAge: SEVEN_DAYS_IN_MS
         });
@@ -331,7 +331,7 @@ router.post('/login', async (req, res) => {
 
         res.cookie('refreshToken', refreshToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
+            secure: true,
             sameSite: 'lax',
             maxAge: SEVEN_DAYS_IN_MS
         });
@@ -421,7 +421,7 @@ router.post('/refresh-token', async (req, res) => {
 
         res.cookie('refreshToken', newRefreshToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
+            secure: true,
             sameSite: 'lax',
             maxAge: SEVEN_DAYS_IN_MS
         });
